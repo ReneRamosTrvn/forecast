@@ -144,7 +144,7 @@ function getDayOfWeek(dateString) {
       <div v-if="!loading && climate" class="w-full px-10">
         <input
           v-model="city"
-          class="rounded-l-full border border-slate-300 w-1/2 px-5"
+          class="rounded-l-full border border-slate-300 w-3/4 lg:w-1/2 px-5"
           type="text"
           name="city"
           id=""
@@ -173,14 +173,14 @@ function getDayOfWeek(dateString) {
           <div class="w-full px-10">
             <input
               v-model="city"
-              class="rounded-l-full border border-slate-300 w-1/2 px-5"
+              class="rounded-lg lg:rounded-l-full border border-slate-300 lg:w-1/2 px-3"
               type="text"
               name="city"
               placeholder="Monterrey"
             />
             <button
               @click="fetchCity(city)"
-              class="rounded-r-full bg-slate-700 text-white px-2 hover:bg-slate-800 border-slate-800"
+              class="rounded-full mt-3 lg:mt-0 lg:rounded-l-none lg:rounded-r-full bg-slate-700 text-white px-2 hover:bg-slate-800 border-slate-800"
             >
               Search
             </button>
@@ -188,14 +188,17 @@ function getDayOfWeek(dateString) {
           Search for a city you would love to know the weather
         </div>
       </div>
-      <div v-if="climate && !loading" class="mx-10 mt-10">
-        <h1 class="text-5xl font-semibold text-slate-700">
+      <div v-if="climate && !loading" class="mx-3 lg:mx-10 mt-10">
+        <h1 class="text-2xl lg:text-5xl font-semibold text-slate-700">
           {{ climate.city.name }}
         </h1>
       </div>
-      <div v-if="climate && !loading" class="w-full grid grid-cols-6 mt-5 px-5">
+      <div
+        v-if="climate && !loading"
+        class="w-full grid grid-cols-2 lg:grid-cols-6 mt-5 lg:px-5"
+      >
         <div
-          class="bg-gradient-to-r from-slate-200 to-zinc-200 p-5 rounded-lg font-semibold text-slate-700 mx-3"
+          class="bg-gradient-to-r from-slate-200 to-zinc-200 p-3 lg:p-5 rounded-lg font-semibold text-slate-700 m-3 lg:my-0 lg:mx-3"
           v-for="dayData in dailyData"
         >
           <p class="text-center mb-2">{{ getDayOfWeek(dayData.date) }}</p>
@@ -221,9 +224,9 @@ function getDayOfWeek(dateString) {
         v-if="climate && !loading"
         v-for="(dayData, date) in dailyData"
         :key="date"
-        class="bg-gradient-to-r from-slate-100 to-zinc-100 rounded-lg p-10 m-10 border border-slate-200 shadow-lg"
+        class="bg-gradient-to-r from-slate-100 to-zinc-100 rounded-lg lg:p-10 m-3 lg:m-10 border border-slate-200 shadow-lg"
       >
-        <div class="flex space-x-2 justify-center mb-5">
+        <div class="flex space-x-2 justify-center m-5">
           <p class="text-2xl font-semibold text-slate-700">
             {{ formatDate(dayData.date) }}
           </p>
@@ -231,7 +234,7 @@ function getDayOfWeek(dateString) {
 
         <div class="w-full grid grid-cols-2">
           <div
-            class="flex items-center justify-center text-[100px] font-semibold text-slate-700"
+            class="flex flex-wrap items-center justify-center text-3xl lg:text-[100px] font-semibold text-slate-700"
           >
             {{ Math.ceil(dayData.avg_temp) }}°C
             <span class="text-sm ml-5">Avg trought the day.</span>
@@ -253,7 +256,7 @@ function getDayOfWeek(dateString) {
             </div>
           </div>
         </div>
-        <div class="grid grid-cols-8 border-t pt-10">
+        <div class="grid grid-cols-2 lg:grid-cols-8 border-t pt-10">
           <div
             class="bg-white m-1 shadow-md flex flex-wrap items-center justify-center border rounded-lg p-2"
             v-for="(timeStamp, index) in dayData.timestamps"
