@@ -170,10 +170,12 @@ function getDayOfWeek(dateString) {
         v-if="!loading && !climate"
       >
         <div class="w-full h-40 text-center text-lg text-slate-600">
-          <div class="w-full px-10">
+          <div
+            class="flex flex-wrap items-center justify-center w-full lg:px-10"
+          >
             <input
               v-model="city"
-              class="rounded-lg lg:rounded-l-full border border-slate-300 lg:w-1/2 px-3"
+              class="rounded-lg lg:rounded-l-full border border-slate-300 lg:w-1/2 px-3 w-full"
               type="text"
               name="city"
               placeholder="Monterrey"
