@@ -16,7 +16,6 @@ function fetchClimate(lat, lon) {
     .then((response) => {
       climate.value = response.data;
       dailyData.value = dailyTemps(response.data.list);
-      console.log(dailyData.value);
       loading.value = false;
     })
     .catch((error) => {
@@ -26,18 +25,25 @@ function fetchClimate(lat, lon) {
 
 function dailyTemps(timeStamps) {
   const dailyData = [];
+  let hottestDayIndex = -1;
+  let hottestTemperature = -Infinity;
 
   timeStamps.forEach((timeStamp) => {
-    const date = timeStamp.dt_txt.split(" ")[0]; // Extract date part
+    // Extraer fecha
+    // Extract date
+    const date = timeStamp.dt_txt.split(" ")[0];
 
-    // Check if the date already exists in the dailyData array
+    // Checamos si la fecha ya existe en el array de dailyData
+    // Find if the date already exists in the dailyData array
     const existingDateIndex = dailyData.findIndex((day) => day.date === date);
 
+    // Si la fecha ya existe, concatenamos el timestamp al array existente
+    // If the date already exists, the timestamps will be pushed in the array
     if (existingDateIndex !== -1) {
-      // If the date exists, push the timestamp to the existing array
       dailyData[existingDateIndex].timestamps.push(timeStamp);
 
       // Update min and max temperature if necessary
+      // Actualizamos la temperatura minima y maxima si es necesario
       const temperature = timeStamp.main.temp;
       dailyData[existingDateIndex].min = Math.min(
         dailyData[existingDateIndex].min,
@@ -48,30 +54,49 @@ function dailyTemps(timeStamps) {
         temperature
       );
       dailyData[existingDateIndex].sum += temperature;
+
+      // Actualizamos el dia mas caliente
+      // Update hottest day
+      if (temperature > hottestTemperature) {
+        hottestTemperature = temperature;
+        hottestDayIndex = existingDateIndex;
+      }
     } else {
+      // Si la fecha no existe, creamos un objeto nuevo y lo concatenamos al array
       // If the date does not exist, create a new object and push it to the array
+      const temperature = timeStamp.main.temp;
       dailyData.push({
         date: date,
-        avg_temp: 0,
-        min: Infinity,
-        max: -Infinity,
+        avg_temp: temperature,
+        min: temperature,
+        max: temperature,
         timestamps: [timeStamp],
-        sum: timeStamp.main.temp,
+        sum: temperature,
+        // Added isHighest to object
+        // Agregamos isHighest al objeto
+        isHighest: false, // Set to false by default // Lo dejamos por default en false
       });
+
+      // Actualizamos el dia mas caliente
+      // Update hottest day
+      if (temperature > hottestTemperature) {
+        hottestTemperature = temperature;
+        hottestDayIndex = dailyData.length - 1;
+      }
     }
   });
 
-  // Calculate average temperature for each day
-  dailyData.forEach((day) => {
-    day.avg_temp = day.sum / day.timestamps.length;
-  });
-
+  // Marcamos el dia mas caliente
+  // Mark the hottest day
+  if (hottestDayIndex !== -1) {
+    dailyData[hottestDayIndex].isHighest = true;
+  }
   return dailyData;
 }
 
 function extractHour(dateTimeString) {
   // Split the date time string into date and time parts
-  const parts = dateTimeString.split(" ");
+  const parts = dateTimeString.split("");
 
   // Extract the time part from the split array
   const time = parts[1];
@@ -106,7 +131,6 @@ function fetchCity(city) {
   axios
     .get(`https://search.reservamos.mx/api/v2/places?q=${city}`)
     .then((response) => {
-      console.log(response.data[0]);
       const lat = response.data[0].lat;
       const long = response.data[0].long;
       fetchClimate(lat, long);
@@ -115,6 +139,7 @@ function fetchCity(city) {
       console.error(error);
     });
 }
+
 function getDayOfWeek(dateString) {
   // Create a Date object from the input date string
   const date = new Date(dateString);
@@ -200,9 +225,17 @@ function getDayOfWeek(dateString) {
         class="w-full grid grid-cols-2 lg:grid-cols-6 mt-5 lg:px-5"
       >
         <div
-          class="bg-gradient-to-r from-slate-200 to-zinc-200 p-3 lg:p-5 rounded-lg font-semibold text-slate-700 m-3 lg:my-0 lg:mx-3"
+          class="p-3 lg:p-5 rounded-lg font-semibold text-slate-700 m-3 lg:my-0 lg:mx-3"
+          :class="
+            dayData.isHighest
+              ? 'bg-red-300 '
+              : 'bg-gradient-to-r from-slate-200 to-zinc-200'
+          "
           v-for="dayData in dailyData"
         >
+          <p v-if="dayData.isHighest" class="text-center font-bold mb-2">
+            Hottest Day
+          </p>
           <p class="text-center mb-2">{{ getDayOfWeek(dayData.date) }}</p>
           <div class="flex items-center justify-center">
             <div class="flex space-x-5">
